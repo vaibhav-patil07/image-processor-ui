@@ -4,7 +4,7 @@ import { Box, Paper, Snackbar } from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import { useState } from 'react';
 import { Typography, Button } from '@mui/material';
-import { uploadImage } from '../api/uploadService';
+import { uploadImage } from '../api/imageService';
 import { useSelector } from 'react-redux';
 
 

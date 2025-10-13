@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getImages } from '../api/uploadService';
 import { useSelector } from 'react-redux';
-import { getImageUrl } from '../api/imageService';
+import { getImageUrl, getImages } from '../api/imageService';
 import { IMAGES_SOCKET_BASE_URL } from '../config/api';
 import { CircularProgress } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 
 export function ImageList({refreshList, setRefreshList}) {
@@ -11,6 +11,7 @@ export function ImageList({refreshList, setRefreshList}) {
     const [imagesProgressMap, setImagesProgressMap ] = useState( new Map());
     const [count, setCount] = useState(0);
     const [jobCompletedImagesCount , setJobCompletedImagesCount] = useState(0);
+    const navigate = useNavigate();
 
     const userId = useSelector((state) => state.user.user_id);
 
@@ -47,6 +48,10 @@ export function ImageList({refreshList, setRefreshList}) {
         }
     }, [refreshList,userId,setRefreshList]);
 
+    const handleImageClick = (imageId, userId) => {
+        navigate(`/users/${userId}/image/${imageId}`);
+    }
+
     useEffect(() => {
         if(jobCompletedImagesCount < count) {
             const socketUrl = `${IMAGES_SOCKET_BASE_URL}/users/${userId}/images`;
@@ -69,7 +74,7 @@ export function ImageList({refreshList, setRefreshList}) {
         return images.map((image) => {
         const jobStatus = imagesProgressMap.get(image.image_id)?.job_status || image.job_status;
         const isJobCompleted = jobStatus === 'completed';
-        return (<div key={image.image_id} className= {isJobCompleted ? 'image-card' : 'image-card cursor-not-allowed'} >
+        return (<div key={image.image_id} className= {isJobCompleted ? 'image-card' : 'image-card cursor-not-allowed'} onClick={() => handleImageClick(image.image_id, userId)}>
                 <div className='image-card-thumbnail-container'>
                     <img src={getImageUrl('thumbnail',userId,image.image_id,image.filename)} className="image-card-thumbnail" alt="Thumbnail"/>
                 </div>

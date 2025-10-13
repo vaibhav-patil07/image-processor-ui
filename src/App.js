@@ -3,15 +3,14 @@ import { useSelector } from 'react-redux';
 import { setUserId } from './store/userSlice';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
-import { Upload } from './components/Upload';
 import { AppBar } from './components/AppBar';
-import { ImageList } from './components/ImageList';
-import { useState } from 'react';
+import { HomePage } from './components/HomePage';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ImagePage } from './components/ImagePage';
 
 function App() {
   let storedUser = JSON.parse(localStorage.getItem('user'));
   const user = useSelector((state) => state.user);
-  const [refreshList, setRefreshList] = useState(false);
   
   const dispatch = useDispatch();
   if(!storedUser){
@@ -26,15 +25,13 @@ function App() {
 
   return (
     <div className="App">
-      <AppBar />
-      <div className="app-container">
-        <div className="app-container-left">
-          <Upload setRefreshList={setRefreshList} />
-        </div>
-        <div className="app-container-right">
-          <ImageList refreshList={refreshList} setRefreshList={setRefreshList} />
-        </div>
-      </div>
+      <BrowserRouter>
+        <AppBar />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/users/:userId/image/:imageId" element={<ImagePage />} />
+        </Routes>
+      </BrowserRouter>
     </div>
   );
 }
