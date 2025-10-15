@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import { setUserId } from './store/userSlice';
 import { useDispatch } from 'react-redux';
 import { useEffect } from 'react';
-import { AppBar } from './components/AppBar';
 import { HomePage } from './components/HomePage';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ImagePage } from './components/ImagePage';
@@ -26,7 +25,6 @@ function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        <AppBar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/users/:userId/image/:imageId" element={<ImagePage />} />

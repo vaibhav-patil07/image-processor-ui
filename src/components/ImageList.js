@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
-import { getImageUrl, getImages } from '../api/imageService';
+import { getImages, getImageUrl ,getImage} from '../api/imageService';
 import { IMAGES_SOCKET_BASE_URL } from '../config/api';
-import { CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-
+import { LinearProgress } from '@mui/material';
+import './ImageList.css';
 
 export function ImageList({refreshList, setRefreshList}) {
     const [images, setImages] = useState([]);
@@ -60,10 +60,30 @@ export function ImageList({refreshList, setRefreshList}) {
                const data = JSON.parse(event.data);
                setImagesProgressMap((prev) => {
                 const newMap = new Map(prev);
-                newMap.set(data.image_id, {
-                    progress: data.progress,
-                    job_status: data.status
-                });
+                if(data.status !== 'completed') {
+                    newMap.set(data.image_id, {
+                        progress: data.progress,
+                        job_status: data.status
+                    });
+                }else{
+                    getImage(userId, data.image_id).then((response) => {
+                        setImages((prev) => {
+                            const newImages = prev.map((image) => {
+                                if(image.image_id === data.image_id) {
+                                    return response.image;
+                                }
+                                return image;
+                            });
+                            return newImages;
+                        })
+                    }).catch((error) => {
+                        console.log(error);
+                    });
+                    newMap.set(data.image_id, {
+                        progress: 100,
+                        job_status: data.status
+                    });
+                }
                 return newMap;
                });
             };
@@ -74,27 +94,28 @@ export function ImageList({refreshList, setRefreshList}) {
         return images.map((image) => {
         const jobStatus = imagesProgressMap.get(image.image_id)?.job_status || image.job_status;
         const isJobCompleted = jobStatus === 'completed';
-        return (<div key={image.image_id} className= {isJobCompleted ? 'image-card' : 'image-card cursor-not-allowed'} onClick={() => handleImageClick(image.image_id, userId)}>
-                <div className='image-card-thumbnail-container'>
-                    <img src={getImageUrl('thumbnail',userId,image.image_id,image.filename)} className="image-card-thumbnail" alt="Thumbnail"/>
-                </div>
-                <div>
-                    <div className='image-card-content'>
-                        <label className={isJobCompleted ? 'image-card-label' : 'image-card-label image-card-disabled-content'} >Name:</label>
-                        <h3 className={isJobCompleted ? 'image-card-h3' : 'image-card-h3 image-card-disabled-content'} >{image.filename}</h3>
+        let compressionRatio = 0;
+        let compressedSize = 0;
+        if(isJobCompleted) {
+            const originalSize = toMB(image.size);
+            compressedSize = toMB(image?.compressed_size?.Int64 || originalSize);
+            compressionRatio = (originalSize - compressedSize) / originalSize * 100;
+        }
+        return (
+            <div key={image.image_id} className={isJobCompleted ? 'image-card' : 'image-card image-card-disabled'}  style={{
+                transform: !isJobCompleted ? "none" : undefined,
+                boxShadow: !isJobCompleted ? "none" : undefined,
+              }} onClick={() => handleImageClick(image.image_id, userId)}>
+                <img className='image-card-thumbnail-image' src={getImageUrl('thumbnail',userId,image.image_id,image.filename)} alt={image.filename} />
+                <div className='image-card-thumbnail-image-content'>
+                    <h3 className='title-font-small-no-accent text-overflow-ellipsis'>{image.filename}</h3>
+                    <h3 className='description-font text-overflow-ellipsis'>{toMB(image.size)} MB</h3>
+                    <button className='image-card-thumbnail-image-button' onClick={() => handleImageClick(image.image_id, userId) } disabled={!isJobCompleted}>View</button>
+                    <div className='image-card-thumbnail-image-compression-ratio'>
+                        <h3 className= {compressionRatio && compressedSize ?'description-font text-overflow-ellipsis':'display-none'}> Reduced to {compressedSize} MB <span className='green-font'>({compressionRatio.toFixed(2)}% smaller)</span></h3>
+                        <h3 className= {!isJobCompleted ?'description-font text-overflow-ellipsis':'display-none'}> Processing...</h3>
+                        <LinearProgress className={ !isJobCompleted ?'image-card-thumbnail-image-compression-ratio-progress': 'display-none'} variant={imagesProgressMap.get(image.image_id)?"determinate" :"indeterminate"} value={imagesProgressMap.get(image.image_id)?.progress || 0} />
                     </div>
-                    <div className='image-card-content'>
-                        <label className={isJobCompleted ? 'image-card-label' : 'image-card-label image-card-disabled-content'} >Size:</label>
-                        <h3 className={isJobCompleted ? 'image-card-h3' : 'image-card-h3 image-card-disabled-content'} >{toMB(image.size)} MB</h3>
-                    </div>
-                    <div className='image-card-content'>
-                        <label className={isJobCompleted ? 'image-card-label' : 'image-card-label image-card-disabled-content'} >Uploaded At:</label>
-                        <h3 className={isJobCompleted ? 'image-card-h3' : 'image-card-h3 image-card-disabled-content'} >{new Date(image.created_at).toLocaleString()}</h3>
-                    </div>
-                </div>
-                <div className={isJobCompleted ? 'display-none' : 'image-card-progress-container'}>
-                    <CircularProgress variant= { !isJobCompleted && imagesProgressMap.get(image.image_id) ? "determinate" : "indeterminate"} value={imagesProgressMap.get(image.image_id)?.progress || 0} />
-                    <label className='image-card-progress-container-label' >Processing...</label>
                 </div>
             </div>
         )})
@@ -102,6 +123,14 @@ export function ImageList({refreshList, setRefreshList}) {
 
     return (
         <div className="image-list-container">
+            <div className={images.length === 0 ? 'how-it-works-container' : 'display-none'}>
+                <h3 className='title-font-small'>How it works</h3>
+               <ul >
+                    <li className='title-font-small-no-accent'>Upload your image</li>
+                    <li className='title-font-small-no-accent'>Wait for the image to be processed</li>
+                    <li className='title-font-small-no-accent'>Download the compressed image</li>
+               </ul>
+            </div>
             {renderImageCards()}
         </div>
     )

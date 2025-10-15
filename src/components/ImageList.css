@@ -1,0 +1,104 @@
+@import '../index.css';
+
+.image-list-container{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.how-it-works-container{
+    flex-grow: 1;
+    background-color: var(--bg-primary);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1.5px solid var(--border-color);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.how-it-works-container ul{
+    list-style: disc;
+    padding-left: 15px;
+    margin: 0;
+}
+
+.image-card{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    border: 1.5px solid var(--border-color);
+    box-shadow: 0 0 10px 0 var(--shadow-color);
+    border-radius: 10px;
+    transition: transform 0.3s ease-in-out;
+    height: fit-content;
+    overflow: hidden;
+    padding: 10px;
+}
+
+.image-card:hover{
+    box-shadow: 0 0 8px 0 var(--shadow-color);
+    transform: scale(1.05);
+}
+
+.image-card-disabled{
+    box-shadow: 0 0 8px 0 var(--shadow-color);
+    cursor: not-allowed;
+}
+
+.image-card img {
+    width: 100%;
+    height: 12rem;          
+    object-fit: cover;      
+    object-position: center;
+    display: block;
+    border-radius: 8.5px 8.5px 0px 0px;
+}
+
+.image-card-thumbnail-image-content{
+    flex-grow: 1;
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.image-card-thumbnail-image-button{
+    width: 5rem;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: var(--accent-color) !important;
+    color: var(--bg-primary) !important;
+    border: 1px solid var(--accent-color) !important;
+}
+
+.image-card-thumbnail-image-button:disabled{
+    background-color: var(--bg-primary) !important;
+    color: var(--accent-color) !important;
+    cursor: not-allowed;
+}
+
+.image-card-thumbnail-image-button:hover{
+    background-color: var(--bg-primary) !important;
+    color: var(--accent-color) !important;
+}
+
+.image-card-thumbnail-image-compression-ratio{
+    width: 100%;
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    border-top: 1px solid var(--border-color);
+    padding-top: 10px;
+}
+
+.image-card-thumbnail-image-compression-ratio-progress{
+    color: var(--accent-color) !important;
+    width: 100%;
+}

@@ -1,0 +1,17 @@
+@import '../index.css';
+.home-page-container{
+    display: flex;
+    flex-grow: 1;
+    flex-direction: column;
+    background-color: var(--bg-primary);
+    margin: 2rem;
+    justify-content: center;
+    gap: 2rem;
+}
+.home-page-container-header{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-grow: 1;
+}

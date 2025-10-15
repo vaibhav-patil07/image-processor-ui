@@ -1,11 +1,12 @@
-import UploadIcon from '../assets/cloud-upload.svg';
-import { CloudUpload } from '@mui/icons-material';
-import { Box, Paper, Snackbar } from '@mui/material';
-import { useDropzone } from 'react-dropzone';
+import Dropzone, { useDropzone } from 'react-dropzone';
 import { useState } from 'react';
-import { Typography, Button } from '@mui/material';
 import { uploadImage } from '../api/imageService';
 import { useSelector } from 'react-redux';
+import './Upload.css';
+import { Button } from '@mui/material';
+import UploadIcon from '../assets/upload.png';
+import {CloudUpload} from '@mui/icons-material';
+import { Snackbar, Alert } from '@mui/material';
 
 
 
@@ -16,7 +17,7 @@ export function Upload({setRefreshList}) {
     const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [isUploading, setIsUploading] = useState(false);
-    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    const { getRootProps, getInputProps } = useDropzone({
     accept: {
         'image/*': ['.png', '.jpg', '.jpeg'],
     },
@@ -44,41 +45,43 @@ export function Upload({setRefreshList}) {
     }
 
     return (
-        <div className="upload-image-container">
-            <Paper
-            {...getRootProps()}
-            className="image-container-dropzone">
-            <input {...getInputProps()} />
-            {image ? (
-                <div className="upload-image-container">
-                {/* <Avatar 
-                    src={image} 
-                    alt="Preview" 
-                /> */}
-                <div className="image-container">
-                    <img src={image} className="image-container-icon-avatar" alt="Upload Icon"/>
-                </div>
-                <Typography>
-                    {isDragActive ? "Drop the image here..." : "Drag & drop an image here, or click to select"}
-                </Typography>
-                </div>
-            ) : (
-                <div>
-                <div className="image-container">
-                    <img src={UploadIcon} className="image-container-icon-avatar" alt="Upload Icon"/>
-                </div>
-                <Typography>
-                    {isDragActive ? "Drop the image here..." : "Drag & drop an image here, or click to select"}
-                </Typography>
+        <div className="home-page-upload-container">
+            <Dropzone>
+            {() => (
+                <div {...getRootProps()} className="home-page-upload-container-input">
+                    <input {...getInputProps()} onChange={(e) => {
+                        setFile(e.target.files[0]);
+                        setImage(URL.createObjectURL(e.target.files[0]));
+                    }} />
+                    <div className={ image ? 'display-none' : 'home-page-upload-container-input-items'}>
+                        <div className='home-page-upload-container-input-icon'>
+                            <img src={UploadIcon} alt="Upload Icon" />
+                        </div>
+                        <div className='title-font-small-no-accent'>
+                            <h3>Drag and drop images here</h3>
+                        </div>
+                        <div className='description-font'>
+                            <h3>or</h3>
+                        </div>
+                        <div>
+                            <Button variant="contained" className="home-page-upload-container-input-button">Browse Images</Button>
+                        </div>
+                        <div className='description-font'>
+                            <h3>Supports: PNG, JPG, JPEG</h3>
+                        </div>
+                    </div>
+                    <div className={ image ? 'home-page-upload-container-input-image-container' : 'display-none'}>
+                        <img src={image} className='home-page-upload-container-input-image' alt="Uploaded" />
+                    </div>
                 </div>
             )}
-            </Paper>
-            <Button variant="contained" endIcon={<CloudUpload />} className="image-container-upload-button" disabled={!image} onClick={handleUpload} loading={isUploading}>
-                Upload
-            </Button>
-            <Box sx={{ width: '500' }}>
-                <Snackbar open={isSnackbarOpen} autoHideDuration={3000} onClose={() => setIsSnackbarOpen(false)} message={snackbarMessage} ></Snackbar>
-            </Box>
-      </div>
+            </Dropzone>
+            <Button variant="contained" className="home-page-upload-container-upload-button" onClick={handleUpload} endIcon={<CloudUpload />}  disabled={!image || isUploading} loading={isUploading}>Upload</Button>
+            <Snackbar open={isSnackbarOpen} autoHideDuration={3000} onClose={() => setIsSnackbarOpen(false)}>
+                <Alert severity="success" sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
+        </div>
     )
 }
