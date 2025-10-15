@@ -1,0 +1,38 @@
+@import '../index.css';
+
+.floating-menu-container{
+    display: flex;
+    align-items: flex-end;
+    flex-direction: column-reverse;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: max-content;
+    height: max-content;
+    margin: 0;
+    padding: 0;
+    gap: 10px;
+}
+
+.floating-menu-item-button{
+     background-color: var(--bg-primary) !important;
+     color: var(--accent-color) !important;
+}
+
+.floating-menu-item-menu{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    pointer-events: none;
+}
+
+.floating-menu-item-menu.open {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    pointer-events: auto;
+}

@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { HomePage } from './components/HomePage';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ImagePage } from './components/ImagePage';
+import { FloatingMenu } from './components/FloatingMenu';
 
 function App() {
   let storedUser = JSON.parse(localStorage.getItem('user'));
@@ -29,6 +30,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/users/:userId/image/:imageId" element={<ImagePage />} />
         </Routes>
+        <FloatingMenu />
       </BrowserRouter>
     </div>
   );
