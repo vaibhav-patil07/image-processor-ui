@@ -7,6 +7,7 @@ import { HomePage } from './components/HomePage';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ImagePage } from './components/ImagePage';
 import { FloatingMenu } from './components/FloatingMenu';
+import { setTheme } from './store/userSlice';
 
 function App() {
   let storedUser = JSON.parse(localStorage.getItem('user'));
@@ -22,6 +23,14 @@ function App() {
       dispatch(setUserId(storedUser.user_id));
     }
   }, [user.user_id, dispatch, storedUser]);
+
+  useEffect(() => {
+    const systemTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    const savedTheme = localStorage.getItem('theme');
+    const theme = savedTheme || systemTheme;
+    dispatch(setTheme(theme));
+    document.documentElement.setAttribute('data-theme', theme);
+  }, [user.theme, dispatch]);
 
   return (
     <div className="App">

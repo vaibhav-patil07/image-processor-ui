@@ -2,7 +2,8 @@ import { createSlice } from '@reduxjs/toolkit'
 
 
 const initialState = {
-  user_id : ''
+  user_id : '',
+  theme : 'light'
 }
 const userSlice = createSlice({
   name : 'user',
@@ -13,7 +14,12 @@ const userSlice = createSlice({
       localStorage.setItem('user', JSON.stringify(state))
       return state
     },
+    setTheme : (state, action) => {
+      state.theme = action.payload
+      localStorage.setItem('theme', action.payload)
+      return state
+    }
   },
 })
-export const { setUserId } = userSlice.actions
+export const { setUserId, setTheme } = userSlice.actions
 export default userSlice.reducer
