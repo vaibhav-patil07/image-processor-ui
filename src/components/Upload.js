@@ -3,7 +3,7 @@ import { useState } from "react";
 import { uploadImage } from "../api/imageService";
 import { useSelector } from "react-redux";
 import "./Upload.css";
-import { Button } from "@mui/material";
+import { Button, LinearProgress } from "@mui/material";
 import UploadIcon from "../assets/upload.png";
 import { CloudUpload } from "@mui/icons-material";
 import { Snackbar, Alert } from "@mui/material";
@@ -15,6 +15,7 @@ export function Upload({ setRefreshList }) {
   const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       "image/*": [".png", ".jpg", ".jpeg"],
@@ -27,11 +28,19 @@ export function Upload({ setRefreshList }) {
 
   const handleUpload = () => {
     setIsUploading(true);
+    setUploadProgress(0);
     const formData = new FormData();
     formData.append("image", file);
-    uploadImage(userId, formData)
+    uploadImage(userId, formData, {
+      onUploadProgress: (e) => {
+        if (e.total) {
+          setUploadProgress(Math.round((e.loaded / e.total) * 100));
+        }
+      },
+    })
       .then((response) => {
         setImage(null);
+        setFile(null);
         setRefreshList(true);
         setSnackbarMessage("Image uploaded successfully");
         setIsSnackbarOpen(true);
@@ -42,6 +51,7 @@ export function Upload({ setRefreshList }) {
       })
       .finally(() => {
         setIsUploading(false);
+        setUploadProgress(0);
       });
   };
 
@@ -101,17 +111,33 @@ export function Upload({ setRefreshList }) {
           </div>
         )}
       </Dropzone>
-      <Button
-        variant="contained"
-        className="home-page-upload-container-upload-button"
-        onClick={handleUpload}
-        endIcon={<CloudUpload />}
-        disabled={!image || isUploading}
-        style={{ cursor: isUploading || !image ? "not-allowed" : "pointer" }}
-        loading={isUploading}
-      >
-        Upload
-      </Button>
+      <div className="home-page-upload-container-upload-wrapper">
+        <Button
+          variant="contained"
+          className="home-page-upload-container-upload-button"
+          onClick={handleUpload}
+          endIcon={<CloudUpload />}
+          disabled={!image || isUploading}
+          style={{ cursor: isUploading || !image ? "not-allowed" : "pointer" }}
+        >
+          {isUploading ? `Uploading ${uploadProgress}%` : "Upload"}
+        </Button>
+        {isUploading && (
+          <LinearProgress
+            variant="determinate"
+            value={uploadProgress}
+            className="home-page-upload-container-upload-progress"
+            sx={{
+              marginTop: 1,
+              borderRadius: 1,
+              backgroundColor: "var(--bg-secondary)",
+              "& .MuiLinearProgress-bar": {
+                backgroundColor: "var(--accent-color)",
+              },
+            }}
+          />
+        )}
+      </div>
       <Snackbar
         open={isSnackbarOpen}
         autoHideDuration={3000}

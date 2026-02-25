@@ -16,14 +16,15 @@ export const getImages = async (userId, options={}) => {
     return response.data;
 }
 
-export const uploadImage = async (userId,formData) => {
+export const uploadImage = async (userId, formData, options = {}) => {
     if(!userId || !formData) {
         return;
     }
-    const response = await api.post(`users/${userId}/images`,formData, {
+    const response = await api.post(`users/${userId}/images`, formData, {
         headers: {
             'Content-Type': 'multipart/form-data'
-        }
+        },
+        onUploadProgress: options.onUploadProgress
     });
     return response.data;
 }
